@@ -1,0 +1,14 @@
+syntax = "proto3";
+package protogen;
+
+service NerService {
+    rpc ExtractSubjectOrgs(NerRequest) returns (NerResponse);
+}
+
+message NerRequest{
+    string input = 1;
+}
+
+message NerResponse {
+    repeated string entities = 1;
+}

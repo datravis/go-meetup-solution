@@ -1,0 +1,78 @@
+version: "3"
+
+services:
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    ports:
+      - "8083:8083"
+      - "8086:8086"
+      - "8090:8090"
+    volumes:
+      - influxdata:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    env_file:
+      - './etc/grafana/grafana.env'
+    links:
+      - influxdb
+    volumes:
+      - grafanadata:/var/lib/grafana
+
+  input-stream:
+    container_name: input-stream
+    image: input-stream:latest
+    build:
+      context: ./
+      dockerfile: ./src/python/input-stream/Dockerfile
+    depends_on:
+      - pipeline
+    links:
+      - pipeline
+    environment:
+      - SUBREDDITS=wallstreetbets,investing
+    env_file:
+      - './src/python/input-stream/app.env'
+
+  ner:
+    container_name: ner
+    image: ner:latest
+    build:
+      context: ./
+      dockerfile: ./src/python/ner/Dockerfile
+    ports:
+      - "9000:9000"
+
+  sentiment:
+    container_name: sentiment
+    image: sentiment:latest
+    build:
+      context: ./
+      dockerfile: ./src/python/sentiment/Dockerfile
+    ports:
+      - "9001:9000"
+
+  pipeline:
+    container_name: pipeline
+    image: pipeline:latest
+    build:
+      context: ./src/go
+      dockerfile: ./pipeline/Dockerfile
+    depends_on:
+      - sentiment
+      - ner
+      - influxdb
+    links:
+      - sentiment
+      - ner
+      - influxdb
+    ports:
+      - "9002:9000"
+
+volumes:
+  influxdata:
+  grafanadata:

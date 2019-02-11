@@ -1,0 +1,15 @@
+syntax = "proto3";
+package protogen;
+
+service PipelineService {
+    rpc Ingest(stream IngestRequest) returns (IngestResponse);
+}
+
+message IngestRequest {
+    string source = 1;
+    string input = 2;
+}
+
+message IngestResponse {
+    string message = 1;
+}

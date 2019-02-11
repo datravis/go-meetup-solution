@@ -1,0 +1,4 @@
+spacy
+grpcio
+google
+protobuf

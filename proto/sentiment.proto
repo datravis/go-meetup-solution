@@ -1,0 +1,14 @@
+syntax = "proto3";
+package protogen;
+
+service SentimentService {
+    rpc Analyze(SentimentRequest) returns (SentimentResponse);
+}
+
+message SentimentRequest {
+    string input = 1;
+}
+
+message SentimentResponse {
+    float sentiment = 1;
+}
